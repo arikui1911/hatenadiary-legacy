@@ -1,10 +1,10 @@
 Gem::Specification.new do |s|
   s.name = %q{hatenadiary}
-  s.version = "0.0.0"
+  s.version = "0.0.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["arikui"]
-  s.date = %q{2009-06-20}
+  s.date = %q{2009-06-22}
   s.description = %q{A client for Hatena Diary to post and delete blog entries.}
   s.email = %q{arikui.ruby@gmail.com}
   s.extra_rdoc_files = ["README", "LICENSE"]
