@@ -6,9 +6,12 @@
 # 
 
 require 'rubygems'
+require 'hpricot'
 require 'www/mechanize'
 require 'www/mechanize/util'
 require 'nkf'
+
+WWW::Mechanize.html_parser = Hpricot
 
 class << WWW::Mechanize::Util
   org = instance_method(:html_unescape)

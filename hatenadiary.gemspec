@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{hatenadiary}
-  s.version = "0.0.2"
+  s.version = "0.0.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["arikui"]
@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
   s.test_files = ["test/test_hatenadiary.rb"]
 
   s.add_dependency "mechanize"
+  s.add_dependency "hpricot"
 
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION

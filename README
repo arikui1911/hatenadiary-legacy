@@ -16,7 +16,7 @@ This list means these environments are enable to make all of /test pass.
 == Dependences
 
 - www/mechanize
-
+- hpricot
 
 == Signature
 
