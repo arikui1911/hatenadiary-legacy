@@ -1,3 +1,7 @@
+2009-12-04  arikui  <arikui.ruby@gmail.com>
+
+	* hatenadiary.gemspec: version up to 0.0.4
+
 2009-11-29  arikui  <arikui.ruby@gmail.com>
 
 	* test/test_hatenadiary.rb: replace test by mocha used version.
