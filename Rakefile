@@ -1,3 +1,5 @@
+# -*- mode: RUBY -*-
+
 task 'default' => 'test'
 
 require 'rake/testtask'
@@ -9,6 +11,7 @@ Rake::RDocTask.new do |t|
   t.rdoc_files = FileList["lib/**/*.rb"].include("README")
   t.options.push '-S', '-N'
 end
+
 
 begin
   require 'rcov/rcovtask'

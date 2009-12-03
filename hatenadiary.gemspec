@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.test_files = ["test/test_hatenadiary.rb"]
 
   s.add_dependency "mechanize"
-  s.add_dependency "hpricot"
+  s.add_dependency "nokogiri"
 
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION

@@ -1,29 +1,37 @@
 # 
 # Distributes under The modified BSD license.
 # 
-# Copyright (c) 2009 arikui <http://d.hatena.ne.jp/arikui/>
+# Copyright (c) 2009 arikui <http://d.hatena.ne.jp/arikui1911/>
 # All rights reserved.
 # 
 
 require 'rubygems'
-require 'hpricot'
-require 'www/mechanize'
-require 'www/mechanize/util'
-require 'nkf'
 
-WWW::Mechanize.html_parser = Hpricot
+# Gem Version
+gem 'nokogiri', '1.3.3'
 
-class << WWW::Mechanize::Util
-  org = instance_method(:html_unescape)
-  define_method(:html_unescape) do |s|
-    m = org.bind(self)
-    begin
-      m.call s
-    rescue ArgumentError
-      m.call s.force_encoding(NKF.guess(s))
+require 'nokogiri'
+require 'mechanize'
+
+# depend on Ruby version
+module HatenaDiary
+  module Util
+    if RUBY_VERSION >= '1.9'
+      def encode_to_utf8(str)
+        str.encode(Encoding::UTF_8)
+      end
+    else
+      require 'kconv'
+      
+      def encode_to_utf8(str)
+        Kconv.toutf8(str)
+      end
     end
+    
+    module_function :encode_to_utf8
   end
 end
+
 
 module HatenaDiary
   # 
@@ -77,8 +85,8 @@ module HatenaDiary
     # 
     # [username] Hatena ID
     # [password] Password for _username_
-    def initialize(username, password)
-      @agent = self.class.mechanizer.new
+    def initialize(username, password, agent = self.class.mechanizer.new)
+      @agent = agent
       @username = username
       @password = password
       @current_account = nil
@@ -138,32 +146,46 @@ module HatenaDiary
     # Posts an entry to Hatena diary service.
     # 
     # Raises HatenaDiary::LoginError unless logined.
-    def post(yyyy, mm, dd, title, body, trivial_p = false)
-      edit_page(yyyy, mm, dd, 0) do |form|
-        form["title"]   = title
-        form["body"]    = body
-        form["trivial"] = "true" if trivial_p
-      end
+    # 
+    # options
+    # [:trivial] check a checkbox of trivial updating.
+    # [:group]   assign hatena-group name. edit group diary.
+    #
+    # Invalid options were ignored.
+    def post(yyyy, mm, dd, title, body, options = {})
+      title = Util.encode_to_utf8(title)
+      body  = Util.encode_to_utf8(body)
+      form = get_form(yyyy, mm, dd, options[:group]){|r| r.form_with(:name => 'edit') }
+      form["year"]    = "%04d" % yyyy
+      form["month"]   = "%02d" % mm
+      form["day"]     = "%02d" % dd
+      form["title"]   = title
+      form["body"]    = body
+      form["trivial"] = "true" if options[:trivial]
+      @agent.submit form, form.button_with(:name => 'edit')
     end
     
     # Deletes an entry from Hatena diary service.
     # 
     # Raises HatenaDiary::LoginError unless logined.
-    def delete(yyyy, mm, dd)
-      edit_page(yyyy, mm, dd, -1)
+    # 
+    # options
+    # [:group]   assign hatena-group name. edit group diary.
+    # 
+    # Invalid options were ignored.
+    def delete(yyyy, mm, dd, options = {})
+      get_form(yyyy, mm, dd, options[:group]){|r| r.forms.last }.submit
     end
     
     private
     
-    def edit_page(yyyy, mm, dd, form_index)
+    def get_form(yyyy, mm, dd, group = nil)
       raise LoginError, "not login yet" unless login?
-      response = @agent.get("http://d.hatena.ne.jp/#{@current_account[0]}/edit?date=#{yyyy}#{mm}#{dd}")
-      form = response.forms.fetch(form_index)
-      form["year"]  = "%04d" % yyyy
-      form["month"] = "%02d" % mm
-      form["day"]   = "%02d" % dd
-      yield(form) if block_given?
-      form.submit
+      vals = [group ? "#{group}.g" : "d",
+              @current_account[0],
+              yyyy, mm, dd]
+      yield @agent.get("http://%s.hatena.ne.jp/%s/edit?date=%04d%02d%02d" % vals)
     end
   end
 end
+
