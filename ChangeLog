@@ -1,5 +1,12 @@
 2009-12-04  arikui  <arikui.ruby@gmail.com>
 
+	* Rakefile: define common settings as constant.
+	include gemspec.
+	(task 'gemspec') added. this task updates `hatenadiary.gemspec' along to spec written in Rakefile.
+	It means, don't have to correct `hatenadiary.gemspec' by hand.
+	(task 'gem') added.
+	(task 'cutter') added. this task uploads gem to GemCutter.
+
 	* hatenadiary.gemspec: version up to 0.0.4
 
 2009-11-29  arikui  <arikui.ruby@gmail.com>
