@@ -1,3 +1,10 @@
+2009-12-18  arikui  <arikui.ruby@gmail.com>
+
+	* lib/hatenadiary.rb: remove gem() version requirement.
+
+	* Rakefile: version up to 0.0.5
+	(gemspec) fix dependence about nokogiri.
+
 2009-12-04  arikui  <arikui.ruby@gmail.com>
 
 	* Rakefile: define common settings as constant.
