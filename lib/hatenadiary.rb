@@ -6,10 +6,6 @@
 # 
 
 require 'rubygems'
-
-# Gem Version
-gem 'nokogiri', '1.3.3'
-
 require 'nokogiri'
 require 'mechanize'
 
