@@ -16,9 +16,9 @@ README  = "README"
 
 gemspec = Gem::Specification.new do |s|
   s.name              = "hatenadiary"
-  s.version           = "0.0.4"
+  s.version           = "0.0.5"
   s.authors           = ["arikui"]
-  s.date              = "2009-12-04"
+  s.date              = "2009-12-18"
   s.rubyforge_project = "hatenadiary"
   s.description       = "A client for Hatena Diary to post and delete blog entries."
   s.summary           = "It is a library provides a client for Hatena Diary to post and delete blog entries."
@@ -26,7 +26,7 @@ gemspec = Gem::Specification.new do |s|
   s.homepage          = "http://wiki.github.com/arikui1911/hatenadiary"
   
   s.add_dependency "mechanize"
-  s.add_dependency "nokogiri", "= 1.3.3"
+  s.add_dependency "nokogiri", ">= 1.3.3"
   
   etc = [README, "LICENSE", "ChangeLog"]
   
