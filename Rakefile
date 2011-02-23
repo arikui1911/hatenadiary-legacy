@@ -24,16 +24,16 @@ gemspec = Gem::Specification.new do |s|
   s.summary           = "It is a library provides a client for Hatena Diary to post and delete blog entries."
   s.email             = "arikui.ruby@gmail.com"
   s.homepage          = "http://wiki.github.com/arikui1911/hatenadiary"
-  
+
   s.add_dependency "mechanize"
   s.add_dependency "nokogiri", ">= 1.3.3"
-  
+
   etc = [README, "LICENSE", "ChangeLog"]
-  
+
   s.test_files = TESTS
   s.extra_rdoc_files = etc
   s.files = LIBS + TESTS + etc
-  
+
   s.rdoc_options = ["--title", "hatenadiary documentation",
                     "--opname", "index.html",
                     "--line-numbers",
