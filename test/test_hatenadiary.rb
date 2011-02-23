@@ -5,6 +5,11 @@ require 'hatenadiary'
 
 
 class TestHatenaDiaryAPI < Test::Unit::TestCase
+  def test_default_mechanizer
+    HatenaDiary::Client.mechanizer = nil
+    assert_equal Mechanize, HatenaDiary::Client.mechanizer
+  end
+
   def setup
     @username = 'USERNAME'
     @password = 'PASSWORD'
