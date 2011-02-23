@@ -11,12 +11,12 @@ class TestHatenaDiaryAPI < Test::Unit::TestCase
     @proxy_url  = "PROXY_URL"
     @proxy_port = "PROXY_PORT"
   end
-  
+
   def test_api_login
     HatenaDiary::Client.expects(:login)
     HatenaDiary.login
   end
-  
+
   def test_login
     client = mock()
     HatenaDiary::Client.expects(:new).with(@username, @password).returns(client)
@@ -25,7 +25,7 @@ class TestHatenaDiaryAPI < Test::Unit::TestCase
       assert_equal 'block delegate check', str
     end
   end
-  
+
   def test_login_with_proxy
     client = mock()
     HatenaDiary::Client.expects(:new).with(@username, @password).returns(client)
@@ -35,13 +35,13 @@ class TestHatenaDiaryAPI < Test::Unit::TestCase
       assert_equal 'block delegate check', str
     end
   end
-  
+
   def test_login_without_block
     client = Object.new
     HatenaDiary::Client.expects(:new).with(@username, @password).returns(client)
     assert_equal client, HatenaDiary::Client.login(@username, @password)
   end
-  
+
   def test_login_without_block_with_proxy
     client = mock()
     HatenaDiary::Client.expects(:new).with(@username, @password).returns(client)
@@ -58,18 +58,18 @@ class TestHatenaDiary < Test::Unit::TestCase
     @agent = mock()
     @client = HatenaDiary::Client.new(@username, @password, @agent)
   end
-  
+
   def test_set_proxy
     proxy_url  = 'PROXY_URL'
     proxy_port = 'PROXY_PORT'
     @agent.expects(:set_proxy).with(proxy_url, proxy_port)
     @client.set_proxy(proxy_url, proxy_port)
   end
-  
+
   def test_logout_without_login
     @client.logout
   end
-  
+
   def login_mocking(submit_response_page_title)
     login_page = mock()
     form = {}
@@ -81,11 +81,11 @@ class TestHatenaDiary < Test::Unit::TestCase
     response.expects(:title).returns(submit_response_page_title)
     form
   end
-  
+
   def logout_mocking
     @agent.expects(:get).with("https://www.hatena.ne.jp/logout")
   end
-  
+
   def test_login_and_logout
     # before login
     assert !@client.login?
@@ -101,7 +101,7 @@ class TestHatenaDiary < Test::Unit::TestCase
     @client.logout
     assert !@client.login?
   end
-  
+
   def test_login_failure
     login_mocking "Login - Hatena"
     begin
@@ -113,7 +113,7 @@ class TestHatenaDiary < Test::Unit::TestCase
       flunk "login error must be raised."
     end
   end
-  
+
   def test_login_if_hatena_changed
     login_mocking "*jumbled pagetitle*"
     begin
@@ -124,7 +124,7 @@ class TestHatenaDiary < Test::Unit::TestCase
       flunk "exception must be raised"
     end
   end
-  
+
   def test_transaction
     assert !@client.login?
     login_mocking "Hatena"
@@ -135,7 +135,7 @@ class TestHatenaDiary < Test::Unit::TestCase
     end
     assert !@client.login?
   end
-  
+
   def test_transaction_without_block
     assert !@client.login?
     assert_raises LocalJumpError do
@@ -143,7 +143,7 @@ class TestHatenaDiary < Test::Unit::TestCase
     end
     assert !@client.login?
   end
-  
+
   def post_mocking(host, date_str)
     edit_page = mock()
     form = {}
@@ -156,7 +156,7 @@ class TestHatenaDiary < Test::Unit::TestCase
     @agent.expects(:submit).with(form, button)
     form
   end
-  
+
   def test_post
     form = post_mocking("d", "12340506")
     @client.transaction do |client|
@@ -172,7 +172,7 @@ class TestHatenaDiary < Test::Unit::TestCase
     assert_equal expected, form
     assert !form["trivial"]
   end
-  
+
   def test_post_trivial
     form = post_mocking("d", "20071108")
     @client.transaction do |client|
@@ -180,14 +180,14 @@ class TestHatenaDiary < Test::Unit::TestCase
     end
     assert_equal "true", form["trivial"]
   end
-  
+
   def test_post_group
     post_mocking "hoge.g", "12340506"
     @client.transaction do |client|
       client.post 1234, 5, 6, 'TITLE', 'BODY', :group => 'hoge'
     end
   end
-  
+
   def test_post_group_trivial
     form = post_mocking("hoge.g", "12340506")
     @client.transaction do |client|
@@ -195,13 +195,13 @@ class TestHatenaDiary < Test::Unit::TestCase
     end
     assert_equal "true", form["trivial"]
   end
-  
+
   def test_post_without_login
     assert_raises HatenaDiary::LoginError do
       @client.post 1999, 5, 26, "TITLE", "BODY\n"
     end
   end
-  
+
   def delete_mocking(host, date_str)
     edit_page = mock()
     form = {}
@@ -214,21 +214,21 @@ class TestHatenaDiary < Test::Unit::TestCase
     form.expects(:submit)
     form
   end
-  
+
   def test_delete
     delete_mocking "d", "12340506"
     @client.transaction do |client|
       client.delete 1234, 5, 6
     end
   end
-  
+
   def test_delete_group
     delete_mocking "piyo.g", "12340506"
     @client.transaction do |client|
       client.delete 1234, 5, 6, :group => 'piyo'
     end
   end
-  
+
   def test_delete_without_login
     assert_raises HatenaDiary::LoginError do
       @client.delete 2009, 8, 30
