@@ -55,7 +55,7 @@ module HatenaDiary
   
   class Client
     def self.mechanizer
-      @mechanizer ||= WWW::Mechanize
+      @mechanizer ||= Mechanize
     end
     
     def self.mechanizer=(klass)
