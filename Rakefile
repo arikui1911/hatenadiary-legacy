@@ -16,7 +16,7 @@ README  = "README"
 
 gemspec = Gem::Specification.new do |s|
   s.name              = "hatenadiary"
-  s.version           = "0.0.5"
+  s.version           = "0.0.6"
   s.authors           = ["arikui"]
   s.date              = "2009-12-18"
   s.rubyforge_project = "hatenadiary"
