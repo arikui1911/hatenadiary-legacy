@@ -1,24 +1,23 @@
-= hatenadiary
+= hatenadiary-legacy
 
 It is a library provides
 a client for Hatena Diary to post and delete blog entries.
 
-Developed on:
-- ruby 1.9.1p429 (2010-07-02 revision 28523) [i386-mswin32]
+No longer this library is only maintained.
 
-- Gem mechanize 1.0.0 
-- Gem nokogiri 1.4.4.1
+Developed on:
+- ruby 2.1.3p242 (2014-09-19 revision 47630) [i386-mingw32]
+- Gem mechanize 2.7.3
 
 This list means these environments are enable to make all of /test pass.
 
 
 == Dependences
 
-- www/mechanize
-- nokogiri
+- mechanize
 
 
 == Signature
 
-arikui (arikui.ruby@gmail.com)
+arikui (arikui.ruby _at_ gmail.com)
 

@@ -1,8 +1,8 @@
 # -*- mode: RUBY -*-
-require 'rubygems'
 require 'rake/testtask'
-require 'rake/rdoctask'
-require 'rake/gempackagetask'
+require 'rdoc/task'
+require 'rubygems'
+require 'rubygems/package_task'
 require 'shellwords'
 
 
@@ -16,17 +16,17 @@ README  = "README"
 
 gemspec = Gem::Specification.new do |s|
   s.name              = "hatenadiary"
-  s.version           = "0.0.6"
+  s.version           = "0.0.7"
   s.authors           = ["arikui"]
-  s.date              = "2009-12-18"
-  s.rubyforge_project = "hatenadiary"
+  s.date              = "2015-02-11"
   s.description       = "A client for Hatena Diary to post and delete blog entries."
   s.summary           = "It is a library provides a client for Hatena Diary to post and delete blog entries."
   s.email             = "arikui.ruby@gmail.com"
-  s.homepage          = "http://wiki.github.com/arikui1911/hatenadiary"
+  s.homepage          = "http://wiki.github.com/arikui1911/hatenadiary-legacy"
 
-  s.add_dependency "mechanize"
-  s.add_dependency "nokogiri", ">= 1.3.3"
+  s.add_runtime_dependency 'mechanize', '~> 0'
+  s.add_development_dependency "test-unit"
+  s.add_development_dependency "flexmock"
 
   etc = [README, "LICENSE", "ChangeLog"]
 
@@ -34,24 +34,19 @@ gemspec = Gem::Specification.new do |s|
   s.extra_rdoc_files = etc
   s.files = LIBS + TESTS + etc
 
-  s.rdoc_options = ["--title", "hatenadiary documentation",
+  s.rdoc_options = ["--title", "hatenadiary-legacy documentation",
                     "--opname", "index.html",
                     "--line-numbers",
                     "--main", README,
                     "--inline-source"]
 end
 
+packager = Gem::PackageTask.new(gemspec)
+packager.define
 
-gem_task = Rake::GemPackageTask.new(gemspec)
-gem_task.define
-gem_dest = "#{gem_task.package_dir}/#{gem_task.gem_file}"
-
-
-desc "Upload the gem file #{gem_task.gem_file} to GemCutter"
-task 'cutter' => 'gem' do |t|
-  gem "push #{gem_dest}"
+task 'push' => 'gem' do |t|
+  gem "push #{packager.package_dir}/#{gemspec.file_name}"
 end
-
 
 Rake::TestTask.new do |t|
   t.test_files = TESTS

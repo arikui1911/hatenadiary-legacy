@@ -1,10 +1,11 @@
-$LOAD_PATH.unshift File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib'))
 require 'test/unit'
-require 'mocha'
+require 'flexmock'
 require 'hatenadiary'
 
 
 class TestHatenaDiaryAPI < Test::Unit::TestCase
+  include FlexMock::TestCase
+
   def test_default_mechanizer
     HatenaDiary::Client.mechanizer = nil
     assert_equal Mechanize, HatenaDiary::Client.mechanizer
@@ -18,56 +19,64 @@ class TestHatenaDiaryAPI < Test::Unit::TestCase
   end
 
   def test_api_login
-    HatenaDiary::Client.expects(:login)
+    flexmock HatenaDiary::Client
+    HatenaDiary::Client.should_receive(:login)
     HatenaDiary.login
   end
 
+  def setup_mocks
+    flexmock HatenaDiary::Client
+    @client = flexmock("client")
+  end
+
   def test_login
-    client = mock()
-    HatenaDiary::Client.expects(:new).with(@username, @password).returns(client)
-    client.expects(:transaction).yields('block delegate check')
+    setup_mocks
+    HatenaDiary::Client.should_receive(:new).with(@username, @password).and_return(@client)
+    @client.should_receive(:transaction).and_yield('block delegate check')
     HatenaDiary::Client.login(@username, @password) do |str|
       assert_equal 'block delegate check', str
     end
   end
 
   def test_login_with_proxy
-    client = mock()
-    HatenaDiary::Client.expects(:new).with(@username, @password).returns(client)
-    client.expects(:set_proxy).with(@proxy_url, @proxy_port)
-    client.expects(:transaction).yields('block delegate check')
+    setup_mocks
+    HatenaDiary::Client.should_receive(:new).with(@username, @password).and_return(@client)
+    @client.should_receive(:set_proxy).with(@proxy_url, @proxy_port)
+    @client.should_receive(:transaction).yields('block delegate check')
     HatenaDiary::Client.login(@username, @password,  [@proxy_url, @proxy_port]) do |str|
       assert_equal 'block delegate check', str
     end
   end
 
   def test_login_without_block
-    client = Object.new
-    HatenaDiary::Client.expects(:new).with(@username, @password).returns(client)
-    assert_equal client, HatenaDiary::Client.login(@username, @password)
+    setup_mocks
+    HatenaDiary::Client.should_receive(:new).with(@username, @password).and_return(@client)
+    assert_equal @client, HatenaDiary::Client.login(@username, @password)
   end
 
   def test_login_without_block_with_proxy
-    client = mock()
-    HatenaDiary::Client.expects(:new).with(@username, @password).returns(client)
-    client.expects(:set_proxy).with(@proxy_url, @proxy_port)
-    assert_equal client, HatenaDiary::Client.login(@username, @password, [@proxy_url, @proxy_port])
+    setup_mocks
+    HatenaDiary::Client.should_receive(:new).with(@username, @password).and_return(@client)
+    @client.should_receive(:set_proxy).with(@proxy_url, @proxy_port)
+    assert_equal @client, HatenaDiary::Client.login(@username, @password, [@proxy_url, @proxy_port])
   end
 end
 
 
 class TestHatenaDiary < Test::Unit::TestCase
+  include FlexMock::TestCase
+
   def setup
     @username = 'USERNAME'
     @password = 'PASSWORD'
-    @agent = mock()
+    @agent = flexmock("agent")
     @client = HatenaDiary::Client.new(@username, @password, @agent)
   end
 
   def test_set_proxy
     proxy_url  = 'PROXY_URL'
     proxy_port = 'PROXY_PORT'
-    @agent.expects(:set_proxy).with(proxy_url, proxy_port)
+    @agent.should_receive(:set_proxy).with(proxy_url, proxy_port)
     @client.set_proxy(proxy_url, proxy_port)
   end
 
@@ -75,20 +84,34 @@ class TestHatenaDiary < Test::Unit::TestCase
     @client.logout
   end
 
+  module MockHash
+    def [](k)
+      (@_table ||= {})[k]
+    end
+
+    def []=(k, v)
+      (@_table ||= {})[k] = v
+    end
+
+    def to_h
+      @_table ||= {}
+    end
+  end
+
   def login_mocking(submit_response_page_title)
-    login_page = mock()
-    form = {}
+    login_page = flexmock("login_page")
+    form = flexmock("form").extend(MockHash)
     forms = [form]
-    response = mock()
-    @agent.expects(:get).with("https://www.hatena.ne.jp/login").returns(login_page)
-    login_page.expects(:forms).returns(forms)
-    form.expects(:submit).returns(response)
-    response.expects(:title).returns(submit_response_page_title)
+    response = flexmock("response")
+    @agent.should_receive(:get).with("https://www.hatena.ne.jp/login").and_return(login_page)
+    login_page.should_receive(:forms).and_return(forms)
+    form.should_receive(:submit).and_return(response)
+    response.should_receive(:title).and_return(submit_response_page_title)
     form
   end
 
   def logout_mocking
-    @agent.expects(:get).with("https://www.hatena.ne.jp/logout")
+    @agent.should_receive(:get).with("https://www.hatena.ne.jp/logout")
   end
 
   def test_login_and_logout
@@ -135,7 +158,7 @@ class TestHatenaDiary < Test::Unit::TestCase
     login_mocking "Hatena"
     logout_mocking
     @client.transaction do |client|
-      assert_same @client, client
+      assert @client.equal?(client)
       assert @client.login?
     end
     assert !@client.login?
@@ -143,22 +166,22 @@ class TestHatenaDiary < Test::Unit::TestCase
 
   def test_transaction_without_block
     assert !@client.login?
-    assert_raises LocalJumpError do
+    assert_raise LocalJumpError do
       @client.transaction
     end
     assert !@client.login?
   end
 
   def post_mocking(host, date_str)
-    edit_page = mock()
-    form = {}
+    edit_page = flexmock("edit_page")
+    form = flexmock("form").extend(MockHash)
     button = Object.new
     login_mocking "Hatena"
     logout_mocking
-    @agent.expects(:get).with("http://#{host}.hatena.ne.jp/#{@username}/edit?date=#{date_str}").returns(edit_page)
-    edit_page.expects(:form_with).with(:name => 'edit').returns(form)
-    form.expects(:button_with).with(:name => 'edit').returns(button)
-    @agent.expects(:submit).with(form, button)
+    @agent.should_receive(:get).with("http://#{host}.hatena.ne.jp/#{@username}/edit?date=#{date_str}").and_return(edit_page)
+    edit_page.should_receive(:form_with).with(:name => 'edit').and_return(form)
+    form.should_receive(:button_with).with(:name => 'edit').and_return(button)
+    @agent.should_receive(:submit).with(form, button)
     form
   end
 
@@ -174,7 +197,7 @@ class TestHatenaDiary < Test::Unit::TestCase
       "title" => "TITLE",
       "body"  => "BODY",
     }
-    assert_equal expected, form
+    assert_equal expected, form.to_h
     assert !form["trivial"]
   end
 
@@ -202,21 +225,21 @@ class TestHatenaDiary < Test::Unit::TestCase
   end
 
   def test_post_without_login
-    assert_raises HatenaDiary::LoginError do
+    assert_raise HatenaDiary::LoginError do
       @client.post 1999, 5, 26, "TITLE", "BODY\n"
     end
   end
 
   def delete_mocking(host, date_str)
-    edit_page = mock()
-    form = {}
+    edit_page = flexmock("edit_page")
+    form = flexmock("form").extend(MockHash)
     forms = [form]
     button = Object.new
     login_mocking "Hatena"
     logout_mocking
-    @agent.expects(:get).with("http://#{host}.hatena.ne.jp/#{@username}/edit?date=#{date_str}").returns(edit_page)
-    edit_page.expects(:forms).returns(forms)
-    form.expects(:submit)
+    @agent.should_receive(:get).with("http://#{host}.hatena.ne.jp/#{@username}/edit?date=#{date_str}").and_return(edit_page)
+    edit_page.should_receive(:forms).returns(forms)
+    form.should_receive(:submit)
     form
   end
 
@@ -235,7 +258,7 @@ class TestHatenaDiary < Test::Unit::TestCase
   end
 
   def test_delete_without_login
-    assert_raises HatenaDiary::LoginError do
+    assert_raise HatenaDiary::LoginError do
       @client.delete 2009, 8, 30
     end
   end

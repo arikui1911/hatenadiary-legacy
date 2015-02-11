@@ -1,3 +1,12 @@
+2015-02-11  arikui  <arikui.ruby@gmail.com>
+
+	* rename to `hatenadiary-legacy'.
+
+	* test/test_hatenadiary.rb: use `flexmock' instead of `mocha'
+
+	* Rakefile: version up tp 0.0.7
+
+
 2011-02-24  arikui  <arikui.ruby@gmail.com>
 
 	* lib/hatenadiary.rb: use constant Mechanize instead of WWW::Mechanize because
